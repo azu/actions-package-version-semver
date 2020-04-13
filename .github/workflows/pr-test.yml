@@ -44,7 +44,7 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              labels: ['Semver: No Update']
+              name: 'Semver: No Update'
             });
       - name: Add No Update Label
         if: steps.semver.outputs.semver == ''

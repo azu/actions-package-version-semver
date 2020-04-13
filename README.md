@@ -23,6 +23,8 @@ Update Pull Request's label when commit new version onto the Pull Request.
 - Update `package.json`'s `version`: Add `Semver: ${type}`
 - No update `package.json`'s `version`: Add `Semver: No Update`
 
+Example PR: [2.0.0 by azu · Pull Request #4 · azu/actions-package-version-semver](https://github.com/azu/actions-package-version-semver/pull/4)
+
 ```yaml
 name: PR Semver Label
 

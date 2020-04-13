@@ -4523,8 +4523,8 @@ function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             // Create GitHub client with the API token.
-            const client = new github_1.GitHub(core.getInput('token', { required: true }));
-            const packageVersionFileName = core.getInput('package_version_filename', { required: true });
+            const client = new github_1.GitHub(core.getInput("token", { required: true }));
+            const packageVersionFileName = core.getInput("package_version_filename", { required: true });
             // Debug log the payload.
             core.debug(`Payload keys: ${Object.keys(github_1.context.payload)}`);
             // Get event name.
@@ -4533,17 +4533,17 @@ function run() {
             let base;
             let head;
             switch (eventName) {
-                case 'pull_request':
+                case "pull_request":
                     base = (_b = (_a = github_1.context.payload.pull_request) === null || _a === void 0 ? void 0 : _a.base) === null || _b === void 0 ? void 0 : _b.sha;
                     head = (_d = (_c = github_1.context.payload.pull_request) === null || _c === void 0 ? void 0 : _c.head) === null || _d === void 0 ? void 0 : _d.sha;
                     break;
-                case 'push':
+                case "push":
                     base = github_1.context.payload.before;
                     head = github_1.context.payload.after;
                     break;
                 default:
                     core.setFailed(`This action only supports pull requests and pushes, ${github_1.context.eventName} events are not supported. ` +
-                        'Please submit an issue on this action\'s GitHub repo if you believe this in correct.');
+                        "Please submit an issue on this action's GitHub repo if you believe this in correct.");
             }
             // Log the base and head commits
             core.info(`Base commit: ${base}`);
@@ -4551,10 +4551,10 @@ function run() {
             // Ensure that the base and head properties are set on the payload.
             if (!base || !head) {
                 core.setFailed(`The base and head commits are missing from the payload for this ${github_1.context.eventName} event. ` +
-                    'Please submit an issue on this action\'s GitHub repo.');
+                    "Please submit an issue on this action's GitHub repo.");
                 // To satisfy TypeScript, even though this is unreachable.
-                base = '';
-                head = '';
+                base = "";
+                head = "";
             }
             // Use GitHub's compare two commits API.
             // https://developer.github.com/v3/repos/commits/#compare-two-commits
@@ -4567,17 +4567,17 @@ function run() {
             // Ensure that the request was successful.
             if (response.status !== 200) {
                 core.setFailed(`The GitHub API for comparing the base and head commits for this ${github_1.context.eventName} event returned ${response.status}, expected 200. ` +
-                    'Please submit an issue on this action\'s GitHub repo.');
+                    "Please submit an issue on this action's GitHub repo.");
             }
             // Ensure that the head commit is ahead of the base commit.
-            if (response.data.status !== 'ahead') {
+            if (response.data.status !== "ahead") {
                 core.setFailed(`The head commit for this ${github_1.context.eventName} event is not ahead of the base commit. ` +
-                    'Please submit an issue on this action\'s GitHub repo.');
+                    "Please submit an issue on this action's GitHub repo.");
             }
             // Get the changed files from the response payload.
             const files = response.data.files;
             const targetFile = files.find(file => {
-                return file.status === 'modified' && file.filename === packageVersionFileName;
+                return file.status === "modified" && file.filename === packageVersionFileName;
             });
             if (!targetFile) {
                 core.info(`Not found ${packageVersionFileName} in this changes.\nThis commit does not version up.`);
@@ -4589,7 +4589,7 @@ function run() {
                 owner: github_1.context.repo.owner,
                 repo: github_1.context.repo.repo,
                 headers: {
-                    'Accept': 'application/vnd.github.v3.raw'
+                    Accept: "application/vnd.github.v3.raw"
                 }
             });
             const currentVersionContent = yield client.repos.getContents({
@@ -4598,10 +4598,12 @@ function run() {
                 owner: github_1.context.repo.owner,
                 repo: github_1.context.repo.repo,
                 headers: {
-                    'Accept': 'application/vnd.github.v3.raw'
+                    Accept: "application/vnd.github.v3.raw"
                 }
             });
-            if (!previousVersionContent.data || Array.isArray(previousVersionContent.data) || !previousVersionContent.data.content) {
+            if (!previousVersionContent.data ||
+                Array.isArray(previousVersionContent.data) ||
+                !previousVersionContent.data.content) {
                 core.setFailed(`The ${packageVersionFileName} content of base commit is something wrong.
 It should be a single JSON file.
 
@@ -4609,7 +4611,9 @@ ${JSON.stringify(previousVersionContent.data, null, 4)}
 `);
                 return;
             }
-            if (!currentVersionContent.data || Array.isArray(currentVersionContent.data) || !currentVersionContent.data.content) {
+            if (!currentVersionContent.data ||
+                Array.isArray(currentVersionContent.data) ||
+                !currentVersionContent.data.content) {
                 core.setFailed(`The ${packageVersionFileName} content of head commit is something wrong.
 It should be a single JSON file.
 
@@ -4644,7 +4648,7 @@ ${previousVersion} -> ${currentVersion}
 `);
                 return;
             }
-            core.setOutput('semver', semverString);
+            core.setOutput("semver", semverString);
         }
         catch (error) {
             core.setFailed(error.message);

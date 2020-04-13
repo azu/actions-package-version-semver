@@ -28,27 +28,33 @@ jobs:
         if: steps.semver.outputs.semver == ''
         run: |
           echo 'No update'
-      - name: Semver Label
+      - name: Add Semver Label
         if: steps.semver.outputs.semver != ''
-        uses: msotoperdomo/label-prs-actions@v1
+        uses: actions/github-script@0.9.0
         with:
-          task: 'label_pr_add'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ADD_LABEL: "Semver: ${{steps.semver.outputs.semver}}"
-      - name: Remove No Update Label
-        if: steps.semver.outputs.semver != ''
-        uses: msotoperdomo/label-prs-actions@v1
-        with:
-          task: 'label_pr_remove'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REMOVE_LABEL: "Semver: No Update"
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            github.issues.addLabels({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: ['Semver: ${{steps.semver.outputs.semver}}']
+            });
+            github.issues.removeLabel({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: ['Semver: No Update']
+            });
       - name: Add No Update Label
         if: steps.semver.outputs.semver == ''
-        uses: msotoperdomo/label-prs-actions@v1
+        uses: actions/github-script@0.9.0
         with:
-          task: 'label_pr_add'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ADD_LABEL: "Semver: No Update"
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            github.issues.addLabels({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: ['Semver: No Update']
+            });

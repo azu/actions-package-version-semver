@@ -92,10 +92,10 @@ jobs:
         name: Run the action
         uses: ./
       - name: Print steps context output
-        if: steps.semver.outputs.semver != ""
+        if: steps.semver.outputs.semver != ''
         run: |
           echo 'steps.semver.outputs.semver=${{ steps.semver.outputs.semver }}'
       - name: Print No semver
-        if: steps.semver.outputs.semver == ""
+        if: steps.semver.outputs.semver == ''
         run: |
           echo 'No update'

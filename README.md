@@ -56,7 +56,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               name: 'Semver: No Update'
-            });
+            }).catch(error => {})
       - name: Add No Update Label
         if: steps.semver.outputs.semver == ''
         uses: actions/github-script@0.9.0
@@ -69,6 +69,7 @@ jobs:
               repo: context.repo.repo,
               labels: ['Semver: No Update']
             });
+
 
 ```
 

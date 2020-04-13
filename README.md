@@ -18,8 +18,8 @@ See [action.yml](action.yml)
 
 ### Set semver label to PullRequest
 
-```
-name: Test
+```yaml
+name: PR Semver Label
 
 on:
   pull_request:
@@ -29,47 +29,39 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: setup Node.js
-        uses: actions/setup-node@v1
-        with:
-          node-version: '12.x'
-      - name: Install dependencies
-        run: |
-          yarn install && yarn all
-      - id: semver
-        name: Run the action
-        uses: ./
-      - name: Print steps context output
+      - name: actions-package-version-semver
+        id: semver
+        uses: azu/actions-package-version-semver@v1
+      - name: Add Semver Label
         if: steps.semver.outputs.semver != ''
-        run: |
-          echo 'steps.semver.outputs.semver=${{ steps.semver.outputs.semver }}'
-      - name: Print No semver
-        if: steps.semver.outputs.semver == ''
-        run: |
-          echo 'No update'
-      - name: Semver Label
-        if: steps.semver.outputs.semver != ''
-        uses: buildsville/add-remove-label@v1
+        uses: actions/github-script@0.9.0
         with:
-          token: ${{secrets.GITHUB_TOKEN}}
-          labels: "Semver: ${{steps.semver.outputs.semver}}"
-          type: add
-      - name: Remove No Update Label
-        if: steps.semver.outputs.semver != ''
-        uses: buildsville/add-remove-label@v1
-        with:
-          token: ${{secrets.GITHUB_TOKEN}}
-          labels: "Semver: No Update"
-          type: remove
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            github.issues.addLabels({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: ['Semver: ${{steps.semver.outputs.semver}}']
+            });
+            github.issues.removeLabel({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              name: 'Semver: No Update'
+            });
       - name: Add No Update Label
         if: steps.semver.outputs.semver == ''
-        uses: buildsville/add-remove-label@v1
+        uses: actions/github-script@0.9.0
         with:
-          token: ${{secrets.GITHUB_TOKEN}}
-          labels: "Semver: No Update"
-          type: add
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            github.issues.addLabels({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: ['Semver: No Update']
+            });
 
 ```
 ## Release Flow

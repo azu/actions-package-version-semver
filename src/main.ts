@@ -101,11 +101,7 @@ async function run(): Promise<void> {
                 Accept: "application/vnd.github.v3.raw"
             }
         });
-        if (
-            !previousVersionContent.data ||
-            Array.isArray(previousVersionContent.data) ||
-            !previousVersionContent.data.content
-        ) {
+        if (typeof previousVersionContent.data !== "string") {
             core.setFailed(`The ${packageVersionFileName} content of base commit is something wrong.
 It should be a single JSON file.
 
@@ -113,11 +109,7 @@ ${JSON.stringify(previousVersionContent.data, null, 4)}
 `);
             return;
         }
-        if (
-            !currentVersionContent.data ||
-            Array.isArray(currentVersionContent.data) ||
-            !currentVersionContent.data.content
-        ) {
+        if (typeof currentVersionContent.data !== "string") {
             core.setFailed(`The ${packageVersionFileName} content of head commit is something wrong.
 It should be a single JSON file.
 
@@ -126,13 +118,13 @@ ${JSON.stringify(previousVersionContent.data, null, 4)}
             return;
         }
 
-        const previousVersion: string | undefined = JSON.parse(previousVersionContent.data.content).version;
-        const currentVersion: string | undefined = JSON.parse(currentVersionContent.data.content).version;
+        const previousVersion: string | undefined = JSON.parse(previousVersionContent.data).version;
+        const currentVersion: string | undefined = JSON.parse(currentVersionContent.data).version;
         if (previousVersion === undefined) {
             core.setFailed(`The ${packageVersionFileName} version of base commit is undefined.
 It should be a JSON file like { version: "<version>" } 
 
-${previousVersionContent.data.content}  
+${previousVersionContent.data}  
 `);
             return;
         }
@@ -140,7 +132,7 @@ ${previousVersionContent.data.content}
             core.setFailed(`The ${packageVersionFileName} version of head commit is undefined.
 It should be a JSON file like { version: "<version>" } 
 
-${currentVersionContent.data.content}  
+${currentVersionContent.data}  
 `);
             return;
         }

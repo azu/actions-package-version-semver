@@ -87,7 +87,7 @@ jobs:
           node-version: '12.x'
       - name: Install dependencies
         run: |
-          yarn install && yarn run package
+          yarn install && yarn all
       - id: semver
         name: Run the action
         uses: ./

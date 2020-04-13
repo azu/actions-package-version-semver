@@ -84,7 +84,7 @@ jobs:
       - name: setup Node.js
         uses: actions/setup-node@v1
         with:
-          node_version: 12
+          node-version: '12.x'
       - name: Install dependencies
         run: |
           yarn install && yarn run package

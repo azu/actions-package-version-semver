@@ -18,6 +18,11 @@ See [action.yml](action.yml)
 
 ### Set semver label to PullRequest
 
+Update Pull Request's label when commit new version onto the Pull Request.
+
+- Update `package.json`'s `version`: Add `Semver: ${type}`
+- No update `package.json`'s `version`: Add `Semver: No Update`
+
 ```yaml
 name: PR Semver Label
 
@@ -69,7 +74,7 @@ jobs:
 
 ```
 npm version {patch,minor,major}
-git push
+git push && git push --tags
 ```
 
 ## Contributing

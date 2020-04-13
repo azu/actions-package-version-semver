@@ -20,6 +20,13 @@ See [action.yml](action.yml)
 
 - [ ] 
 
+## Release Flow
+
+```
+npm version {patch,minor,major}
+git push
+```
+
 ## Contributing
 
 1. Fork it!

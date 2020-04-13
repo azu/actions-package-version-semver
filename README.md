@@ -69,7 +69,7 @@ jobs:
 
 ```
 npm version {patch,minor,major}
-git push --tags
+git push && git push --tags
 ```
 
 ## Contributing

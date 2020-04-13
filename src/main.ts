@@ -6,7 +6,7 @@ async function run(): Promise<void> {
   try {
     // Create GitHub client with the API token.
     const client = new GitHub(core.getInput('token', {required: true}))
-    const packageVersionFileName = core.getInput('package_version_filename') ?? 'package.json'
+    const packageVersionFileName = core.getInput('package_version_filename', {required: true})
     // Debug log the payload.
     core.debug(`Payload keys: ${Object.keys(context.payload)}`)
 
@@ -81,8 +81,7 @@ async function run(): Promise<void> {
     })
     if (!targetFile) {
       core.info(
-        `Not found ${packageVersionFileName} in this changes.\n` +
-        'This commit does not version up.'
+        `Not found ${packageVersionFileName} in this changes.\nThis commit does not version up.`
       )
       return
     }

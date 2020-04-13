@@ -19,7 +19,7 @@ inputs:
       Path to package json file like package.json or lerna.json.
       The package file should have version property.
       Default is package.json.
-    required: false
+    required: true
     default: package.json
 outputs:
   semver:

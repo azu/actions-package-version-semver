@@ -29,10 +29,9 @@
     "clean": "rimraf dist/**/* lib/**/*",
     "format": "prettier --write **/*.ts",
     "format:check": "prettier --check **/*.ts",
-    "lint": "eslint src/**/*.ts",
     "package": "ncc build",
     "test": "jest",
-    "all": "yarn clean && yarn build && yarn format && yarn lint && yarn package && yarn test"
+    "all": "yarn clean && yarn build && yarn format && yarn package && yarn test"
   },
   "dependencies": {
     "@actions/core": "^1.2.2",
@@ -46,10 +45,6 @@
     "@types/semver": "^7.1.0",
     "@typescript-eslint/parser": "^2.8.0",
     "@zeit/ncc": "^0.21.0",
-    "eslint": "^6.8.0",
-    "eslint-plugin-github": "^3.4.0",
-    "eslint-plugin-jest": "^23.6.0",
-    "eslint-plugin-prettier": "^3.1.2",
     "jest": "^25.1.0",
     "jest-circus": "^25.1.0",
     "js-yaml": "^3.13.1",

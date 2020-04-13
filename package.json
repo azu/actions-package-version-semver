@@ -1,28 +1,24 @@
 {
-  "name": "get-changed-files",
+  "name": "actions-package-version-semver",
   "description": "GitHub action that gets all changed files in a pull request or push.",
   "version": "1.0.0",
   "private": true,
-  "author": "Jitterbit, Inc.",
+  "author": "azu",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jiterbit/get-changed-files.git"
+    "url": "git+https://github.com/azu/actions-package-version-semver.git"
   },
-  "homepage": "https://github.com/jitterbit/get-changed-files#readme",
+  "homepage": "https://github.com/azu/actions-package-version-semver#readme",
   "bugs": {
-    "url": "https://github.com/jitterbit/get-changed-files/issues"
+    "url": "https://github.com/azu/actions-package-version-semver/issues"
   },
   "keywords": [
     "GitHub",
     "Actions",
-    "TypeScript",
-    "JavaScript",
-    "Get",
-    "Changed",
-    "Modified",
-    "Diff",
-    "Files"
+    "semver",
+    "npm",
+    "learn"
   ],
   "main": "lib/main.js",
   "engines": {

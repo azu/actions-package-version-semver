@@ -1,6 +1,6 @@
-name: Get All Changed Files
-description: Get all of the files changed/modified in a pull request or push's commits.
-author: Jitterbit, Inc.
+name: package-version-semver
+description: set "semver" output from commit diff of package.json/lerna.json.
+author: azu
 branding:
   icon: file
   color: purple
@@ -14,32 +14,14 @@ inputs:
       Users shouldn't need to set this themselves.
     required: true
     default: ${{ github.token }}
-  format:
+  package_version_filename:
     description: >
-      Format of the steps output context.
-      Can be 'space-delimited', 'csv', or 'json'.
-    required: true
-    default: space-delimited
+      Path to package json file like package.json or lerna.json.
+      The package file should have version property.
+      Default is package.json.
+    required: false
+    default: package.json
 outputs:
-  all:
+  semver:
     description: >
-      Array of all changed files.
-  added:
-    description: >
-      Array of added files.
-  modified:
-    description: >
-      Array of modified files.
-  removed:
-    description: >
-      Array of removed files.
-  renamed:
-    description: >
-      Array of renamed files.
-  added_modified:
-    description: >
-      Array of all added and modified files.
-  # For backwards-compatibility
-  deleted:
-    description: >
-      Array of deleted files.
+      Semver type that is one of 'major' | 'premajor' | 'minor' | 'preminor' | 'patch' | 'prepatch' | 'prerelease'

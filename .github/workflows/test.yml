@@ -88,4 +88,4 @@ jobs:
 
       - name: Print steps context output
         run: |
-          echo 'steps.files.outputs.semver=${{ steps.files.semver.semver }}'
+          echo 'steps.semver.outputs.semver=${{ steps.semver.outputs.semver }}'

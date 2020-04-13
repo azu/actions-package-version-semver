@@ -14,6 +14,18 @@ See [action.yml](action.yml)
     echo 'steps.semver.outputs.semver=${{ steps.semver.outputs.semver }}'
 ```
 
+Support `lerna.json`:
+
+```yaml
+- id: semver
+  uses: azu/actions-package-version-semver@v1
+  with:
+    package_version_filename: lerna.json
+- name: Print steps context output
+  run: |
+    echo 'steps.semver.outputs.semver=${{ steps.semver.outputs.semver }}'
+```
+
 ## UseCase
 
 ### Set semver label to PullRequest

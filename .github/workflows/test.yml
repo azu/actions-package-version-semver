@@ -81,7 +81,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-
+      - name: setup Node.js
+        uses: actions/setup-node@v1
+        with:
+          node_version: 12
+      - name: Install dependencies
+        run: |
+          yarn install && yarn run package
       - id: semver
         name: Run the action
         uses: ./

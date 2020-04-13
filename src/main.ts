@@ -1,20 +1,12 @@
 import * as core from '@actions/core'
 import {context, GitHub} from '@actions/github'
-
-type Format = 'space-delimited' | 'csv' | 'json'
-type FileStatus = 'added' | 'modified' | 'removed' | 'renamed'
+import {diff} from 'semver'
 
 async function run(): Promise<void> {
   try {
     // Create GitHub client with the API token.
     const client = new GitHub(core.getInput('token', {required: true}))
-    const format = core.getInput('format', {required: true}) as Format
-
-    // Ensure that the format parameter is set properly.
-    if (format !== 'space-delimited' && format !== 'csv' && format !== 'json') {
-      core.setFailed(`Format must be one of 'string-delimited', 'csv', or 'json', got '${format}'.`)
-    }
-
+    const packageVersionFileName = core.getInput('package_version_filename') ?? 'package.json'
     // Debug log the payload.
     core.debug(`Payload keys: ${Object.keys(context.payload)}`)
 
@@ -37,7 +29,7 @@ async function run(): Promise<void> {
       default:
         core.setFailed(
           `This action only supports pull requests and pushes, ${context.eventName} events are not supported. ` +
-            "Please submit an issue on this action's GitHub repo if you believe this in correct."
+          'Please submit an issue on this action\'s GitHub repo if you believe this in correct.'
         )
     }
 
@@ -49,7 +41,7 @@ async function run(): Promise<void> {
     if (!base || !head) {
       core.setFailed(
         `The base and head commits are missing from the payload for this ${context.eventName} event. ` +
-          "Please submit an issue on this action's GitHub repo."
+        'Please submit an issue on this action\'s GitHub repo.'
       )
 
       // To satisfy TypeScript, even though this is unreachable.
@@ -70,7 +62,7 @@ async function run(): Promise<void> {
     if (response.status !== 200) {
       core.setFailed(
         `The GitHub API for comparing the base and head commits for this ${context.eventName} event returned ${response.status}, expected 200. ` +
-          "Please submit an issue on this action's GitHub repo."
+        'Please submit an issue on this action\'s GitHub repo.'
       )
     }
 
@@ -78,110 +70,92 @@ async function run(): Promise<void> {
     if (response.data.status !== 'ahead') {
       core.setFailed(
         `The head commit for this ${context.eventName} event is not ahead of the base commit. ` +
-          "Please submit an issue on this action's GitHub repo."
+        'Please submit an issue on this action\'s GitHub repo.'
       )
     }
 
     // Get the changed files from the response payload.
     const files = response.data.files
-    const all = [] as string[],
-      added = [] as string[],
-      modified = [] as string[],
-      removed = [] as string[],
-      renamed = [] as string[],
-      addedModified = [] as string[]
-    for (const file of files) {
-      const filename = file.filename
-      // If we're using the 'space-delimited' format and any of the filenames have a space in them,
-      // then fail the step.
-      if (format === 'space-delimited' && filename.includes(' ')) {
-        core.setFailed(
-          `One of your files includes a space. Consider using a different output format or removing spaces from your filenames. ` +
-            "Please submit an issue on this action's GitHub repo."
-        )
+    const targetFile = files.find(file => {
+      return file.status === 'modified' && file.filename === packageVersionFileName
+    })
+    if (!targetFile) {
+      core.info(
+        `Not found ${packageVersionFileName} in this changes.\n` +
+        'This commit does not version up.'
+      )
+      return
+    }
+    const previousVersionContent = await client.repos.getContents({
+      ref: base,
+      path: packageVersionFileName,
+      owner: context.repo.owner,
+      repo: context.repo.repo,
+      headers: {
+        'Accept': 'application/vnd.github.v3.raw'
       }
-      all.push(filename)
-      switch (file.status as FileStatus) {
-        case 'added':
-          added.push(filename)
-          addedModified.push(filename)
-          break
-        case 'modified':
-          modified.push(filename)
-          addedModified.push(filename)
-          break
-        case 'removed':
-          removed.push(filename)
-          break
-        case 'renamed':
-          renamed.push(filename)
-          break
-        default:
-          core.setFailed(
-            `One of your files includes an unsupported file status '${file.status}', expected 'added', 'modified', 'removed', or 'renamed'.`
-          )
+    })
+    const currentVersionContent = await client.repos.getContents({
+      ref: head,
+      path: packageVersionFileName,
+      owner: context.repo.owner,
+      repo: context.repo.repo,
+      headers: {
+        'Accept': 'application/vnd.github.v3.raw'
       }
+    })
+    if (!previousVersionContent.data || Array.isArray(previousVersionContent.data) || !previousVersionContent.data.content) {
+      core.setFailed(`The ${packageVersionFileName} content of base commit is something wrong.
+It should be a single JSON file.
+
+${JSON.stringify(previousVersionContent.data, null, 4)}  
+`
+      )
+      return
+    }
+    if (!currentVersionContent.data || Array.isArray(currentVersionContent.data) || !currentVersionContent.data.content) {
+      core.setFailed(`The ${packageVersionFileName} content of head commit is something wrong.
+It should be a single JSON file.
+
+${JSON.stringify(previousVersionContent.data, null, 4)}  
+`
+      )
+      return
     }
 
-    // Format the arrays of changed files.
-    let allFormatted: string,
-      addedFormatted: string,
-      modifiedFormatted: string,
-      removedFormatted: string,
-      renamedFormatted: string,
-      addedModifiedFormatted: string
-    switch (format) {
-      case 'space-delimited':
-        // If any of the filenames have a space in them, then fail the step.
-        for (const file of all) {
-          if (file.includes(' '))
-            core.setFailed(
-              `One of your files includes a space. Consider using a different output format or removing spaces from your filenames.`
-            )
-        }
-        allFormatted = all.join(' ')
-        addedFormatted = added.join(' ')
-        modifiedFormatted = modified.join(' ')
-        removedFormatted = removed.join(' ')
-        renamedFormatted = renamed.join(' ')
-        addedModifiedFormatted = addedModified.join(' ')
-        break
-      case 'csv':
-        allFormatted = all.join(',')
-        addedFormatted = added.join(',')
-        modifiedFormatted = modified.join(',')
-        removedFormatted = removed.join(',')
-        renamedFormatted = renamed.join(',')
-        addedModifiedFormatted = addedModified.join(',')
-        break
-      case 'json':
-        allFormatted = JSON.stringify(all)
-        addedFormatted = JSON.stringify(added)
-        modifiedFormatted = JSON.stringify(modified)
-        removedFormatted = JSON.stringify(removed)
-        renamedFormatted = JSON.stringify(renamed)
-        addedModifiedFormatted = JSON.stringify(addedModified)
-        break
+    const previousVersion: string | undefined = JSON.parse(previousVersionContent.data.content).version
+    const currentVersion: string | undefined = JSON.parse(currentVersionContent.data.content).version
+    if (previousVersion === undefined) {
+      core.setFailed(`The ${packageVersionFileName} version of base commit is undefined.
+It should be a JSON file like { version: "<version>" } 
+
+${previousVersionContent.data.content}  
+`
+      )
+      return
+    }
+    if (currentVersion === undefined) {
+      core.setFailed(`The ${packageVersionFileName} version of head commit is undefined.
+It should be a JSON file like { version: "<version>" } 
+
+${currentVersionContent.data.content}  
+`
+      )
+      return
     }
 
-    // Log the output values.
-    core.info(`All: ${allFormatted}`)
-    core.info(`Added: ${addedFormatted}`)
-    core.info(`Modified: ${modifiedFormatted}`)
-    core.info(`Removed: ${removedFormatted}`)
-    core.info(`Renamed: ${renamedFormatted}`)
-    core.info(`Added or modified: ${addedModifiedFormatted}`)
+    // diff semver previous -> current
+    const semverString = diff(previousVersion, currentVersion)
+    if (semverString === null) {
+      core.setFailed(`Can not get semver diff.
+   
+${previousVersion} -> ${currentVersion}   
+`
+      )
+      return
+    }
 
-    // Set step output context.
-    core.setOutput('all', allFormatted)
-    core.setOutput('added', addedFormatted)
-    core.setOutput('modified', modifiedFormatted)
-    core.setOutput('removed', removedFormatted)
-    core.setOutput('renamed', renamedFormatted)
-    core.setOutput('added_modified', addedModifiedFormatted)
-
-    // For backwards-compatibility
-    core.setOutput('deleted', removedFormatted)
+    core.setOutput('semver', semverString)
   } catch (error) {
     core.setFailed(error.message)
   }

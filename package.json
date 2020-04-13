@@ -25,13 +25,13 @@
     "node": "^12.0.0"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && yarn package",
     "clean": "rimraf dist/**/* lib/**/*",
     "format": "prettier --write **/*.ts",
     "format:check": "prettier --check **/*.ts",
     "package": "ncc build",
     "test": "jest",
-    "all": "yarn clean && yarn build && yarn format && yarn package && yarn test"
+    "all": "yarn clean && yarn build && yarn format && yarn test"
   },
   "dependencies": {
     "@actions/core": "^1.2.2",

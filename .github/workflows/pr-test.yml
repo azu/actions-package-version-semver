@@ -30,7 +30,7 @@ jobs:
           echo 'No update'
       - name: Semver Label
         if: steps.semver.outputs.semver != ''
-        uses: label-prs-actions@v1
+        uses: msotoperdomo/label-prs-actions@v1
         with:
           task: 'label_pr_add'
         env:
@@ -38,7 +38,7 @@ jobs:
           ADD_LABEL: "Semver: ${{steps.semver.outputs.semver}}"
       - name: Remove No Update Label
         if: steps.semver.outputs.semver != ''
-        uses: label-prs-actions@v1
+        uses: msotoperdomo/label-prs-actions@v1
         with:
           task: 'label_pr_remove'
         env:
@@ -46,7 +46,7 @@ jobs:
           REMOVE_LABEL: "Semver: No Update"
       - name: Add No Update Label
         if: steps.semver.outputs.semver == ''
-        uses: label-prs-actions@v1
+        uses: msotoperdomo/label-prs-actions@v1
         with:
           task: 'label_pr_add'
         env:

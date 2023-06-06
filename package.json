@@ -29,7 +29,7 @@
     "clean": "rimraf dist/**/* lib/**/*",
     "format": "prettier --write **/*.ts",
     "format:check": "prettier --check **/*.ts",
-    "package": "ncc build",
+    "package": "NODE_OPTIONS='--openssl-legacy-provider' ncc build",
     "test": "jest",
     "all": "yarn clean && yarn build && yarn format && yarn test"
   },
@@ -44,7 +44,7 @@
     "@types/node": "^12.12.29",
     "@types/semver": "^7.1.0",
     "@typescript-eslint/parser": "^2.8.0",
-    "@zeit/ncc": "^0.21.0",
+    "@zeit/ncc": "^0.22.3",
     "jest": "^25.1.0",
     "jest-circus": "^25.1.0",
     "js-yaml": "^3.13.1",

@@ -19,7 +19,13 @@ module.exports =
 /******/ 		};
 /******/
 /******/ 		// Execute the module function
-/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/ 		var threw = true;
+/******/ 		try {
+/******/ 			modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/ 			threw = false;
+/******/ 		} finally {
+/******/ 			if(threw) delete installedModules[moduleId];
+/******/ 		}
 /******/
 /******/ 		// Flag the module as loaded
 /******/ 		module.l = true;
@@ -296,9 +302,9 @@ module.exports = require("tls");
 /***/ }),
 
 /***/ 18:
-/***/ (function() {
+/***/ (function(module) {
 
-eval("require")("encoding");
+module.exports = eval("require")("encoding");
 
 
 /***/ }),
@@ -4634,6 +4640,9 @@ It should be a JSON file like { version: "<version>" }
 ${currentVersionContent.data}  
 `);
                 return;
+            }
+            if (currentVersion === previousVersion) {
+                return; // No Update Version
             }
             // diff semver previous -> current
             const semverString = semver_1.diff(previousVersion, currentVersion);

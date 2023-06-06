@@ -137,6 +137,9 @@ ${currentVersionContent.data}
             return;
         }
 
+        if(currentVersion === previousVersion) {
+            return; // No Update Version
+        }
         // diff semver previous -> current
         const semverString = diff(previousVersion, currentVersion);
         if (semverString === null) {
@@ -148,7 +151,7 @@ ${previousVersion} -> ${currentVersion}
         }
 
         core.setOutput("semver", semverString);
-    } catch (error) {
+    } catch (error:any) {
         core.setFailed(error.message);
     }
 }

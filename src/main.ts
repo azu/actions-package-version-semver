@@ -151,7 +151,7 @@ ${previousVersion} -> ${currentVersion}
         }
 
         core.setOutput("semver", semverString);
-    } catch (error:any) {
+    } catch (error) {
         core.setFailed(error.message);
     }
 }
